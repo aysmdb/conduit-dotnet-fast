@@ -3,16 +3,21 @@ using BCryptNet = BCrypt.Net.BCrypt;
 using RealDotnetFast.Models.Mappers;
 using RealDotnetFast.Models.Requests;
 using RealDotnetFast.Repositories;
+using RealDotnetFast.Models.Responses;
+using RealDotnetFast.Models.Entities;
+using RealDotnetFast.Services;
 
-namespace RealDotnetFast.Models.Entities;
+namespace RealDotnetFast.Endpoints;
 
-public class RegistrationEndpoint : Endpoint<RegistrationRequest, User, UserMapper>
+public class RegistrationEndpoint : Endpoint<RegistrationRequest, UserResponse, UserMapper>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IAuthService _authService;
 
-    public RegistrationEndpoint(IUserRepository userRepository)
+    public RegistrationEndpoint(IUserRepository userRepository, IAuthService authService)
     {
         _userRepository = userRepository;
+        _authService = authService;
     }
 
     public override void Configure()
@@ -28,6 +33,11 @@ public class RegistrationEndpoint : Endpoint<RegistrationRequest, User, UserMapp
 
         await _userRepository.CreateAsync(user);
 
-        await SendAsync(user);
+        var token = _authService.GenerateToken(user.Id);
+
+        var resp = Map.FromEntity(user);
+        resp.User!.Token = token;
+
+        await SendAsync(resp);
     }
 }

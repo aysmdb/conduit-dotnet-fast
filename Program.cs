@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using RealDotnetFast;
 using RealDotnetFast.Repositories;
 using RealDotnetFast.Repositories.Implementations;
+using RealDotnetFast.Services;
+using RealDotnetFast.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,7 @@ builder.Services
 .AddFastEndpoints();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
